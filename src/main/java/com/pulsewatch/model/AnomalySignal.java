@@ -1,9 +1,11 @@
 package com.pulsewatch.model;
 
 public record AnomalySignal(
-        String type,
+        AnomalyType type,
+        AnomalySeverity severity,
         String description,
         double currentValue,
-        double previousValue
+        Double previousValue,
+        Double threshold
 ) {
 }

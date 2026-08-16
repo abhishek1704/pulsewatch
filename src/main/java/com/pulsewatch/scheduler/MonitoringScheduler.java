@@ -1,6 +1,5 @@
 package com.pulsewatch.scheduler;
 
-import com.pulsewatch.model.MonitoringMetrics;
 import com.pulsewatch.service.MonitoringService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,12 +13,17 @@ public class MonitoringScheduler {
 
     private final MonitoringService monitoringService;
 
-    @Scheduled(cron = "0 */5 * * * ?")
+    @Scheduled(cron = "0 */1 * * * ?")
     public void monitorServices() {
-        // Logic to monitor registered services
-        log.info("Monitoring registered services...");
-        MonitoringMetrics metrics = monitoringService.getMonitoringMetrics("payment-api");
-        log.info("Retrieved monitoring metrics for payment-api");
-        log.info("Monitoring Metrics: {}", metrics);
+
+        log.info("Starting scheduled monitoring");
+
+        try {
+            monitoringService.monitorRegisteredServices();
+        } catch (Exception e) {
+            log.error("Scheduled monitoring failed", e);
+        }
+
+        log.info("Scheduled monitoring completed");
     }
 }

@@ -1,7 +1,10 @@
 package com.pulsewatch.service;
 
+import com.pulsewatch.model.AnomalyAnalysis;
 import com.pulsewatch.model.MonitoringMetrics;
+import com.pulsewatch.model.ServiceConfiguration;
 import com.pulsewatch.model.TelemetryRecord;
+import com.pulsewatch.repository.ServiceRegistrationRepository;
 import com.pulsewatch.repository.TelemetryRecordRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,28 +19,53 @@ import java.util.List;
 @Slf4j
 public class MonitoringService {
 
+    private static final int MONITORING_WINDOW_MINUTES = 720;
+
+    private final ServiceRegistrationRepository serviceRegistrationRepository;
     private final TelemetryRecordRepository telemetryRecordRepository;
+    private final AnomalyDetector anomalyDetector;
 
-    public MonitoringMetrics getMonitoringMetrics(String serviceName) {
+    public void monitorRegisteredServices() {
+        List<ServiceConfiguration> services = serviceRegistrationRepository.findAll();
+        if (services.isEmpty()) {
+            log.info("No registered services found for monitoring");
+            return;
+        }
+        Instant currentEnd = Instant.now();
+        Instant currentStart = currentEnd.minus(MONITORING_WINDOW_MINUTES, ChronoUnit.MINUTES);
+        Instant previousStart = currentStart.minus(MONITORING_WINDOW_MINUTES, ChronoUnit.MINUTES);
 
-        Instant endTime = Instant.now();
-        Instant startTime = endTime.minus(1, ChronoUnit.HOURS);
+        for (ServiceConfiguration service : services) {
+            try {
+                monitorService(service.getName(), currentStart,currentEnd, previousStart);
+            } catch (Exception e) {
+                log.error("Failed to monitor service: {}", service.getName(), e);
+            }
+        }
+    }
 
-        List<TelemetryRecord> records =
-                telemetryRecordRepository.findByServiceNameAndEventTimestampBetween(
-                        serviceName,
-                        startTime,
-                        endTime
-                );
+    private void monitorService(String serviceName,
+                                Instant currentStart, Instant currentEnd, Instant previousStart) {
 
+        MonitoringMetrics current = getMonitoringMetrics(serviceName, currentStart, currentEnd);
+        MonitoringMetrics previous = getMonitoringMetrics(serviceName, previousStart, currentStart);
+
+        AnomalyAnalysis analysis = anomalyDetector.detect(current, previous);
+
+        log.info("Monitoring completed for service={}, severity={}, signals={}",
+                serviceName,
+                analysis.severity(),
+                analysis.signals());
+    }
+
+    private MonitoringMetrics getMonitoringMetrics(String serviceName, Instant startTime, Instant endTime) {
+
+        List<TelemetryRecord> records = telemetryRecordRepository
+                .findByServiceNameAndEventTimestampBetween(serviceName, startTime, endTime);
         long requestCount = records.size();
-        long errorCount = records.stream()
-                .filter(record -> record.getStatusCode() >= 500).count();
+        long errorCount = records.stream().filter(record -> record.getStatusCode() >= 500).count();
         double errorRate = requestCount == 0 ? 0.0 : (double) errorCount / requestCount;
-        double averageLatencyMs = records.stream()
-                .mapToLong(TelemetryRecord::getLatencyMs)
-                .average()
-                .orElse(0.0);
+        double averageLatencyMs = records.stream().mapToLong(TelemetryRecord::getLatencyMs).average().orElse(0.0);
         long p95LatencyMs = calculateP95(records);
 
         return new MonitoringMetrics(
