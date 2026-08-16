@@ -17,4 +17,13 @@ public class TelemetryEvent {
     private Integer statusCode;
     private Long latencyMs;
     private Instant timestamp;
+
+    public TelemetryEvent(String serviceName, String environment, String endpoint, int statusCode, long latencyMs, Instant timestamp) {
+        this.serviceName = serviceName;
+        this.environment = environment;
+        this.endpoint = endpoint;
+        this.statusCode = statusCode;
+        this.latencyMs = latencyMs;
+        this.timestamp = timestamp;
+    }
 }
