@@ -1,13 +1,11 @@
-package com.pulsewatch.model;
+package com.pulsewatch.telemetry.model;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 import java.time.Instant;
 
 @Getter
-@Setter
 @ToString
 public class TelemetryEvent {
 

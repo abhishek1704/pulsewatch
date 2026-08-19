@@ -1,4 +1,4 @@
-package com.pulsewatch.model;
+package com.pulsewatch.telemetry.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;

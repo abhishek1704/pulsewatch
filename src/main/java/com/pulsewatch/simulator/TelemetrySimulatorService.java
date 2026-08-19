@@ -1,6 +1,7 @@
 package com.pulsewatch.simulator;
 
-import com.pulsewatch.model.TelemetryEvent;
+import com.pulsewatch.telemetry.model.TelemetryEvent;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestClient;
 import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
@@ -11,12 +12,15 @@ import java.util.Random;
 @Slf4j
 public class TelemetrySimulatorService {
 
+    @Value("${pulsewatch.telemetry.endpoint}")
+    private String telemetryEndpoint;
+
     private final RestClient restClient;
     private final Random random = new Random();
 
     public TelemetrySimulatorService() {
         this.restClient = RestClient.builder()
-                .baseUrl("http://localhost:8080")
+                .baseUrl(telemetryEndpoint)
                 .build();
     }
 

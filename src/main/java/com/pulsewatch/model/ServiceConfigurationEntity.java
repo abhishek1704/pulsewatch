@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "service_configuration")
 @Getter
 @NoArgsConstructor
-public class ServiceConfiguration {
+public class ServiceConfigurationEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +26,7 @@ public class ServiceConfiguration {
     @Column(nullable = false)
     private String healthEndpoint;
 
-    public ServiceConfiguration(ServiceRegistrationRequest request) {
+    public ServiceConfigurationEntity(ServiceRegistrationRequest request) {
         this.name = request.getName();
         this.environment = request.getEnvironment();
         this.baseUrl = request.getBaseUrl();

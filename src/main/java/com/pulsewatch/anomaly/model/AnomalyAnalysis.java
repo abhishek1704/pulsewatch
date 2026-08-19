@@ -1,4 +1,4 @@
-package com.pulsewatch.model;
+package com.pulsewatch.anomaly.model;
 
 import java.time.Instant;
 import java.util.List;

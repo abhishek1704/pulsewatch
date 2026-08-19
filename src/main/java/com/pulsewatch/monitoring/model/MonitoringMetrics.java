@@ -1,4 +1,4 @@
-package com.pulsewatch.model;
+package com.pulsewatch.monitoring.model;
 
 import java.time.Instant;
 

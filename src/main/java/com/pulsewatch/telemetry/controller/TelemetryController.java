@@ -1,7 +1,7 @@
-package com.pulsewatch.controller;
+package com.pulsewatch.telemetry.controller;
 
-import com.pulsewatch.model.TelemetryEvent;
-import com.pulsewatch.service.TelemetryService;
+import com.pulsewatch.telemetry.model.TelemetryEvent;
+import com.pulsewatch.telemetry.service.TelemetryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

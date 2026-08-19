@@ -1,6 +1,6 @@
-package com.pulsewatch.repository;
+package com.pulsewatch.telemetry.repository;
 
-import com.pulsewatch.model.TelemetryRecord;
+import com.pulsewatch.telemetry.model.TelemetryRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.Instant;

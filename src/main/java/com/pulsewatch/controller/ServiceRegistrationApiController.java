@@ -1,12 +1,13 @@
 package com.pulsewatch.controller;
 
 import com.pulsewatch.service.ServiceRegistrationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.pulsewatch.model.ServiceRegistrationRequest;
-import com.pulsewatch.model.ServiceConfiguration;
+import com.pulsewatch.model.ServiceConfigurationEntity;
 
 import java.net.URI;
 import java.util.List;
@@ -20,12 +21,13 @@ public class ServiceRegistrationApiController {
     private final ServiceRegistrationService serviceRegistrationService;
 
     @PostMapping
-    public ResponseEntity<ServiceConfiguration> register(@RequestBody ServiceRegistrationRequest request) {
+    public ResponseEntity<String> register(
+            @Valid @RequestBody ServiceRegistrationRequest request) {
         try {
-            ServiceConfiguration cfg = serviceRegistrationService.registerService(request);
+            ServiceConfigurationEntity cfg = serviceRegistrationService.registerService(request);
             log.info("Service registered: {}", cfg.getName());
             URI location = URI.create("/api/services/" + cfg.getId());
-            return ResponseEntity.created(location).body(cfg);
+            return ResponseEntity.created(location).body("Service registered successfully with ID: " + cfg.getId());
         } catch (IllegalArgumentException e) {
             log.warn("Validation error: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -36,7 +38,7 @@ public class ServiceRegistrationApiController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ServiceConfiguration>> getAllServices() {
+    public ResponseEntity<List<ServiceConfigurationEntity>> getAllServices() {
         return ResponseEntity.ok(serviceRegistrationService.getAllServices());
     }
 }

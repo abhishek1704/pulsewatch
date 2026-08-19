@@ -1,8 +1,8 @@
-package com.pulsewatch.service;
+package com.pulsewatch.telemetry.service;
 
-import com.pulsewatch.model.TelemetryEvent;
-import com.pulsewatch.model.TelemetryRecord;
-import com.pulsewatch.repository.TelemetryRecordRepository;
+import com.pulsewatch.telemetry.model.TelemetryEvent;
+import com.pulsewatch.telemetry.model.TelemetryRecord;
+import com.pulsewatch.telemetry.repository.TelemetryRecordRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,6 +13,11 @@ import org.springframework.stereotype.Service;
 public class TelemetryProcessingService {
     private final TelemetryRecordRepository repository;
 
+    /**
+     * Processes the incoming telemetry data and saves it to the database.
+     *
+     * @param event The telemetry event to be processed.
+     */
     public void processTelemetryData(TelemetryEvent event) {
         TelemetryRecord record = new TelemetryRecord(event);
         repository.save(record);
