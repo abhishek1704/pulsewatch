@@ -80,6 +80,13 @@ public class AiTestController {
                 )
         );
 
-        return aiIncidentAnalysisService.analyze(currentMetrics, previousMetrics, analysis);
+        return aiIncidentAnalysisService.analyze(new com.pulsewatch.anomaly.model.AnomalyDetectedEvent(
+                "payment-api",
+                AnomalySeverity.CRITICAL,
+                analysis.signals(),
+                currentMetrics,
+                previousMetrics,
+                now
+        ));
     }
 }

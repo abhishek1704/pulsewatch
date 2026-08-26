@@ -9,4 +9,7 @@ public record AnomalyAnalysis(
         AnomalySeverity severity,
         List<AnomalySignal> signals
 ) {
+    public boolean hasAnomalies() {
+        return !signals.isEmpty();
+    }
 }

@@ -1,11 +1,12 @@
 package com.pulsewatch.monitoring.service;
 
 import com.pulsewatch.anomaly.model.AnomalyAnalysis;
+import com.pulsewatch.anomaly.model.AnomalyDetectedEvent;
+import com.pulsewatch.anomaly.service.AnomalyEventPublisher;
 import com.pulsewatch.monitoring.model.MonitoringMetrics;
 import com.pulsewatch.model.ServiceConfigurationEntity;
 import com.pulsewatch.anomaly.service.AnomalyDetector;
 import com.pulsewatch.repository.ServiceRegistrationRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +26,8 @@ public class MonitoringService {
 
     private final ServiceRegistrationRepository serviceRegistrationRepository;
     private final AnomalyDetector anomalyDetector;
-    private final MonitoringMetricsUtility monitoringMetricsUtility;
+    private final MonitoringMetricsService monitoringMetricsService;
+    private final AnomalyEventPublisher anomalyEventPublisher;
 
     /**
      * Monitors all registered services for anomalies based on telemetry data.
@@ -64,9 +66,26 @@ public class MonitoringService {
     private void monitorService(String serviceName,
                                 Instant currentStart, Instant currentEnd, Instant previousStart) {
 
-        MonitoringMetrics current = monitoringMetricsUtility.getMonitoringMetrics(serviceName, currentStart, currentEnd);
-        MonitoringMetrics previous = monitoringMetricsUtility.getMonitoringMetrics(serviceName, previousStart, currentStart);
+        MonitoringMetrics current = monitoringMetricsService.getMonitoringMetrics(serviceName, currentStart, currentEnd);
+        MonitoringMetrics previous = monitoringMetricsService.getMonitoringMetrics(serviceName, previousStart, currentStart);
         AnomalyAnalysis analysis = anomalyDetector.detect(current, previous);
-        log.info("Monitoring completed for service={}, severity={}, signals={}", serviceName, analysis.severity(), analysis.signals());
+
+        if (analysis.hasAnomalies()) {
+            log.info("Monitoring completed for service={}, severity={}, signals={}", serviceName, analysis.severity(), analysis.signals());
+            log.info("Publishing anomaly event for Ai analytics for service={}", serviceName);
+
+            AnomalyDetectedEvent anomalyEvent = new AnomalyDetectedEvent(
+                    analysis.serviceName(),
+                    analysis.severity(),
+                    analysis.signals(),
+                    current,
+                    previous,
+                    Instant.now()
+            );
+
+            anomalyEventPublisher.publish(anomalyEvent);
+        }
     }
+
 }
+

@@ -11,7 +11,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class MonitoringMetricsUtility {
+public class MonitoringMetricsService {
 
     private final TelemetryRecordRepository telemetryRecordRepository;
 

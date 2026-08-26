@@ -1,12 +1,14 @@
 package com.pulsewatch.ai;
 
 import com.pulsewatch.ai.model.AiIncidentAnalysis;
-import com.pulsewatch.anomaly.model.AnomalyAnalysis;
+import com.pulsewatch.anomaly.model.AnomalyDetectedEvent;
+import com.pulsewatch.anomaly.model.AnomalySignal;
 import com.pulsewatch.monitoring.model.MonitoringMetrics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -15,8 +17,9 @@ public class AiIncidentAnalysisService {
 
     private final ChatClient chatClient;
 
-    public AiIncidentAnalysis analyze(MonitoringMetrics currentMetrics,
-                                      MonitoringMetrics previousMetrics, AnomalyAnalysis analysis) {
+    public AiIncidentAnalysis analyze(AnomalyDetectedEvent event) {
+        MonitoringMetrics currentMetrics = event.currentMetrics();
+        MonitoringMetrics previousMetrics = event.previousMetrics();
 
         String prompt = """
                 You are an incident analysis assistant for PulseWatch.
@@ -92,8 +95,8 @@ public class AiIncidentAnalysisService {
                 previousMetrics.averageLatencyMs(),
                 previousMetrics.p95LatencyMs(),
 
-                analysis.severity(),
-                formatSignals(analysis)
+                event.severity(),
+                formatSignals(event.signals())
         );
 
         return chatClient
@@ -103,8 +106,8 @@ public class AiIncidentAnalysisService {
                 .entity(AiIncidentAnalysis.class);
     }
 
-    private String formatSignals(AnomalyAnalysis analysis) {
-        return analysis.signals().stream()
+    private String formatSignals(List<AnomalySignal> signals) {
+        return signals.stream()
                 .map(signal -> """
                         Type: %s
                         Severity: %s

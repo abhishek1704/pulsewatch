@@ -12,13 +12,10 @@ import java.util.Random;
 @Slf4j
 public class TelemetrySimulatorService {
 
-    @Value("${pulsewatch.telemetry.endpoint}")
-    private String telemetryEndpoint;
-
     private final RestClient restClient;
     private final Random random = new Random();
 
-    public TelemetrySimulatorService() {
+    public TelemetrySimulatorService(@Value("${pulsewatch.telemetry.endpoint.url}") String telemetryEndpoint) {
         this.restClient = RestClient.builder()
                 .baseUrl(telemetryEndpoint)
                 .build();

@@ -39,9 +39,7 @@ public class AnomalyDetector {
             detectSpikes(currentMetrics, previousMetrics, signals);
         }
         detectCorrelatedSignals(currentMetrics, signals);
-
-        AnomalySeverity overallSeverity =
-                determineOverallSeverity(signals);
+        AnomalySeverity overallSeverity = determineOverallSeverity(signals);
 
         return new AnomalyAnalysis(
                 currentMetrics.serviceName(),

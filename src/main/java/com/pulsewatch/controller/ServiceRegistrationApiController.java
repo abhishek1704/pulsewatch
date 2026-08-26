@@ -21,20 +21,12 @@ public class ServiceRegistrationApiController {
     private final ServiceRegistrationService serviceRegistrationService;
 
     @PostMapping
-    public ResponseEntity<String> register(
-            @Valid @RequestBody ServiceRegistrationRequest request) {
-        try {
-            ServiceConfigurationEntity cfg = serviceRegistrationService.registerService(request);
-            log.info("Service registered: {}", cfg.getName());
-            URI location = URI.create("/api/services/" + cfg.getId());
-            return ResponseEntity.created(location).body("Service registered successfully with ID: " + cfg.getId());
-        } catch (IllegalArgumentException e) {
-            log.warn("Validation error: {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            log.error("Error registering service: {}", e.getMessage(), e);
-            return ResponseEntity.status(500).build();
-        }
+    public ResponseEntity<String> register(@Valid @RequestBody ServiceRegistrationRequest request) {
+        ServiceConfigurationEntity cfg = serviceRegistrationService.registerService(request);
+        log.info("Service registered: {}", cfg.getName());
+        URI location = URI.create("/api/services/" + cfg.getId());
+        return ResponseEntity.created(location)
+                .body("Service registered successfully with ID: " + cfg.getId());
     }
 
     @GetMapping
