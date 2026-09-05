@@ -72,7 +72,11 @@ Example:
 
 ```json
 {
-  "name": "payment-service"
+  "id": 1,
+  "name": "payment-api",
+  "environment": "local",
+  "baseUrl": "http://localhost:8081",
+  "healthEndpoint": "/actuator/health"
 }
 ```
 
@@ -84,6 +88,18 @@ Telemetry can be submitted through:
 
 ```http
 POST /api/telemetry
+```
+Example:
+
+```json
+{
+  "serviceName": "payment-api",
+  "environment": "local",
+  "endpoint": "/payments",
+  "statusCode": 500,
+  "latencyMs": 1840,
+  "timestamp": "2026-08-16T00:10:00Z"
+}
 ```
 
 Telemetry is published asynchronously to Kafka and processed by a downstream consumer.
@@ -308,7 +324,7 @@ Make sure the following are available:
 ### 1. Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/abhishek1704/pulsewatch.git
 cd pulsewatch
 ```
 
